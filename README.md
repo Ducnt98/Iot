@@ -1,45 +1,36 @@
-# He thong goi ho tro va thong bao qua MQTT
+# Hệ thống gọi hỗ trợ và thông báo thông minh qua MQTT
 
-Mo hinh 3 thanh phan tren mang Wi-Fi noi bo:
+Mô hình **Điện thoại gọi hỗ trợ/SOS → máy tính Mosquitto MQTT Broker → ESP32 + DFPlayer Mini + loa**.
 
-1. **phone-app/**: trang web tren dien thoai (Vite + MQTT.js) gui yeu cau SUPPORT/SOS, nhan thong bao xac nhan.
-2. **pc-broker/**: Mosquitto MQTT Broker tren may tinh, WebSocket cho trinh duyet, chuong trinh Python theo doi va luu SQLite.
-3. **esp32-audio/**: Arduino ESP32 Subscribe yeu cau, dieu khien DFPlayer Mini + loa phat am thanh va gui ACK.
+## Cấu trúc repository
+
+- [phone-app/android/](phone-app/android/) — **Android native Java + XML** (mới), có nút gọi hỗ trợ, SOS và nhận ACK.
+- [phone-app/](phone-app/) — Web app JavaScript (giữ lại để thử nghiệm).
+- [pc-broker/](pc-broker/) — Mosquitto Broker trên PC (TCP 1883, WebSocket 9001), Python monitor lưu SQLite.
+- [esp32-audio/](esp32-audio/) — Arduino ESP32 + DFPlayer Mini + loa.
 
 ```text
-Dien thoai (Web, MQTT over WebSocket :9001)
-                  |
-                  v
-May tinh Windows (Mosquitto broker :1883/:9001)
-                  |
-                  v
-ESP32 (MQTT TCP :1883) --> DFPlayer Mini + Loa
-                  |
-                  +------> support/ack --> Dien thoai va may tinh
+Android Java ---MQTT TCP:1883--+
+                               |
+Web App ------MQTT WS:9001-----+--> Mosquitto Broker (PC)
+                                       |
+                                 MQTT TCP:1883
+                                       |
+                                       v
+                              ESP32 + DFPlayer + loa
+                                       |
+                                       +--> support/ack --> Android/Web
 ```
 
-## Bat dau nhanh
+## Bắt đầu
 
-1. Xem [pc-broker/README.md](pc-broker/README.md): cai Mosquitto, tao tai khoan, mo cong 1883/9001 trong mang LAN, chay Broker.
-2. Xem [esp32-audio/README.md](esp32-audio/README.md): dau noi ESP32 - DFPlayer Mini - loa, sao chep `secrets.example.h` thanh `secrets.h`, nap chuong trinh Arduino.
-3. Xem [phone-app/README.md](phone-app/README.md): `npm install`, `npm run dev -- --host 0.0.0.0`; truy cap `http://<IP_MAY_TINH>:5173` tren dien thoai.
-4. Tu dien thoai nhap IP may tinh, tai khoan MQTT, chon phong va nhan **Goi ho tro** / **SOS**.
-5. Loa phat file `0001.mp3` (SUPPORT) hoac `0002.mp3` (SOS); giao dien nhan trang thai `PLAY_STARTED`.
+1. Cài Broker trên PC: [pc-broker/README.md](pc-broker/README.md).
+2. Nạp firmware Arduino và chuẩn bị file MP3: [esp32-audio/README.md](esp32-audio/README.md).
+3. Chạy Android Java: [phone-app/android/README.md](phone-app/android/README.md).
+   Hoặc chạy Web bản cũ: [phone-app/README.md](phone-app/README.md).
 
-## Giao thuc MQTT
+Cùng hai topic MQTT: `support/requests` (điện thoại gửi), `support/ack` (ESP32 phản hồi).
+ESP32 nhận `type: "SUPPORT"` để phát file MP3 0001 hoặc `type: "SOS"` để phát file MP3 0002.
+Trường `location` chỉ hiển thị trong log, chưa đọc thành giọng nói. ACK `PLAY_STARTED` chỉ có nghĩa ESP32 đã ra lệnh phát file.
 
-- Broker: IP LAN cua may tinh, TCP 1883 cho ESP32; WebSocket 9001 cho dien thoai.
-- `support/requests`: dien thoai Publish JSON `{requestId,deviceId,from,location,type,timestamp}`.
-- `support/ack`: ESP32 Publish JSON `{requestId,deviceId,location,state}` sau khi ra lenh phat am thanh.
-- `deviceId` mac dinh: `esp32-audio-01`; `type`: `SUPPORT` hoac `SOS`.
-- `PLAY_STARTED` **chi xac nhan lenh phat da duoc gui cho module**, khong chung minh am thanh da phat het hay co nguoi den ho tro.
-
-## Gioi han va an toan
-
-- Ban mau phu hop thuc hanh/mang LAN, **khong phai he thong bao dong cap cuu du tin cay**.
-- Khong mo cong MQTT ra Internet; su dung mat khau, gioi han Windows Firewall cho mang Private.
-- Ket noi dang dung TCP MQTT va WebSocket **khong ma hoa**; neu trien khai thuc te hay dung TLS, xac thuc, giu bi mat.
-- ESP32 phat cac file MP3 da ghi san, **khong tu doc duoc noi dung phong thay doi**. Truong location chi duoc luu va hien thi.
-- Khong commit `esp32-audio/esp32_audio/secrets.h` hay file mat khau Mosquitto.
-
-Chi tiet va lenh kiem thu nam trong README cua tung project.
+**Chỉ phù hợp thử nghiệm trên LAN tin cậy**. MQTT TCP/WebSocket chưa có TLS; không mở Broker ra Internet hoặc dùng làm hệ thống cấp cứu đòi hỏi độ tin cậy cao.

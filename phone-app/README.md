@@ -1,13 +1,14 @@
-# Phone project: trang web gửi yêu cầu hỗ trợ
+# Ứng dụng điện thoại (Phone App)
 
-Trang web responsive, chạy trong Chrome/Safari trên điện thoại (không phải APK). Chạy **Vite dev server trên máy tính**, điện thoại truy cập qua Wi-Fi nội bộ. Dùng thư viện MQTT.js kết nối WebSocket trực tiếp đến Mosquitto ở máy tính.
+Có **hai cách sử dụng**, cùng gửi dữ liệu MQTT tới máy tính Mosquitto và ESP32 phát loa.
 
-## Chuẩn bị
+## 1. Android native bằng Java (khuyên dùng)
 
-- Node.js LTS và npm trên máy tính.
-- Mosquitto đang chạy ở cổng MQTT 1883 và WebSocket 9001 theo `pc-broker/README.md`.
+Mã nguồn ở [android/](android/). Có giao diện XML, nút **Gọi hỗ trợ**, **SOS**, cấu hình IP Broker/tài khoản và nhận phản hồi từ ESP32. Xem **[Hướng dẫn Android Studio](android/README.md)**.
 
-## Chạy
+## 2. Web app dùng để kiểm thử
+
+Bản Web App JavaScript hiện có được giữ nguyên.
 
 ```powershell
 cd phone-app
@@ -15,13 +16,13 @@ npm install
 npm run dev -- --host 0.0.0.0
 ```
 
-Trên điện thoại cùng Wi-Fi, mở `http://<IP_MAY_TINH>:5173`. Điền IP máy tính, port 9001, username/password MQTT, mã thiết bị `esp32-audio-01`, phòng `A101`. Nhấn **Kết nối** → **Gọi hỗ trợ** hoặc **SOS khẩn cấp**.
+Mở điện thoại cùng Wi-Fi: `http://<IP_MAY_TINH>:5173`, kết nối tới Mosquitto WebSocket port `9001`.
 
-Thư mục **phone-app** là một project web riêng; bạn có thể nâng cấp thành PWA hoặc app Android sau. Trình duyệt trên HTTP LAN không dùng HTTPS; WebSocket ở đây là `ws://`, phù hợp **demo trong mạng nội bộ tin cậy**, không cho sử dụng qua Internet.
+## Giao thức chung
 
-## MQTT
+- Điện thoại gửi: `support/requests` (QoS 1; JSON).
+- Điện thoại nhận: `support/ack` (QoS 1).
+- ESP32 đích mặc định: `esp32-audio-01`.
+- Broker chạy trên máy tính với `pc-broker/mosquitto.conf`.
 
-- Publish `support/requests` (QoS 1, retain false).
-- Subscribe `support/ack` (QoS 1). Hiển thị ACK có `requestId` khớp với yêu cầu vừa gửi.
-- Nội dung `PLAY_STARTED` chỉ xác nhận ESP32 đã gửi lệnh tới module phát âm thanh, **không chứng minh có người đến hỗ trợ**.
-- Nếu không có ACK, kiểm tra `deviceId` của phone/ESP32, MQTT username/password, IP và dây loa.
+**Android Java dùng MQTT TCP cổng 1883**, còn **Web JavaScript dùng MQTT WebSocket cổng 9001**. Không đổi tên topic giữa hai bản.
