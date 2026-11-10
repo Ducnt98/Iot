@@ -40,6 +40,6 @@ ESP32 (MQTT TCP :1883) --> DFPlayer Mini + Loa
 - Khong mo cong MQTT ra Internet; su dung mat khau, gioi han Windows Firewall cho mang Private.
 - Ket noi dang dung TCP MQTT va WebSocket **khong ma hoa**; neu trien khai thuc te hay dung TLS, xac thuc, giu bi mat.
 - ESP32 phat cac file MP3 da ghi san, **khong tu doc duoc noi dung phong thay doi**. Truong location chi duoc luu va hien thi.
-- Khong commit `esp32-audio/secrets.h` hay file mat khau Mosquitto.
+- Khong commit `esp32-audio/esp32_audio/secrets.h` hay file mat khau Mosquitto.
 
 Chi tiet va lenh kiem thu nam trong README cua tung project.

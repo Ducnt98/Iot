@@ -1,0 +1,13 @@
+# Arduino WiFi/MQTT secrets
+esp32-audio/esp32_audio/secrets.h
+# Broker credentials/database
+pc-broker/passwords.txt
+pc-broker/*.db
+pc-broker/*.db-*
+pc-broker/__pycache__/
+pc-broker/.venv/
+# Web app
+phone-app/node_modules/
+phone-app/dist/
+phone-app/.env
+.DS_Store

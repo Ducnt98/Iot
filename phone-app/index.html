@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gọi hỗ trợ IoT</title>
+</head>
+<body>
+  <main class="app">
+    <header>
+      <p class="eyebrow">IoT SUPPORT</p>
+      <h1>Hệ thống gọi hỗ trợ</h1>
+      <p>Điện thoại gửi yêu cầu → máy tính MQTT Broker → ESP32 phát thông báo bằng loa.</p>
+    </header>
+    <section class="panel">
+      <div class="status-row"><h2>Kết nối MQTT</h2><span id="status" role="status">Chưa kết nối</span></div>
+      <div class="fields">
+        <label>IP máy tính / Broker <input id="host" placeholder="192.168.1.10" autocomplete="off" /></label>
+        <label>WebSocket port <input id="port" type="number" value="9001" /></label>
+        <label>MQTT username <input id="username" value="support" autocomplete="username" /></label>
+        <label>MQTT password <input id="password" type="password" autocomplete="off" placeholder="Nhập mật khẩu" /></label>
+        <label>Mã ESP32 đích <input id="deviceId" value="esp32-audio-01" /></label>
+        <label>Vị trí/phòng <input id="location" value="A101" /></label>
+      </div>
+      <div class="actions">
+        <button id="connect">Kết nối</button>
+        <button id="disconnect" class="secondary" disabled>Ngắt kết nối</button>
+      </div>
+    </section>
+    <section class="panel">
+      <h2>Gửi yêu cầu</h2>
+      <div class="call-actions">
+        <button id="support" class="support" disabled>GỌI HỖ TRỢ</button>
+        <button id="sos" class="sos" disabled>SOS KHẨN CẤP</button>
+      </div>
+      <p class="note">ESP32 phát file MP3 đã chuẩn bị sẵn. Nội dung phòng được gửi qua MQTT nhưng chưa được đọc thành tiếng.</p>
+    </section>
+    <section class="panel">
+      <h2>Lịch sử phiên này</h2>
+      <ul id="events" aria-live="polite"><li>Chưa có sự kiện.</li></ul>
+    </section>
+    <footer>Phiên bản học tập trong Wi-Fi nội bộ, không thay thế hệ thống báo động khẩn cấp chuyên dụng.</footer>
+  </main>
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
